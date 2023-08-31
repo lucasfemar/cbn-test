@@ -8,7 +8,7 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npx cds build --production
+        - npx -p @sap/cds-dk cds build --production
 modules:
   - name: cbn-test-srv
     type: nodejs
@@ -23,14 +23,6 @@ modules:
           srv-url: ${default-url}
     requires:
       - name: cbn-test-auth
-      - name: cbn-test-db
-
-  - name: cbn-test-db-deployer
-    type: hdb
-    path: gen/db
-    parameters:
-      buildpack: nodejs_buildpack
-    requires:
       - name: cbn-test-db
 
   - name: cbn-test
@@ -48,6 +40,14 @@ modules:
           url: ~{srv-url}
           forwardAuthToken: true
       - name: cbn-test-auth
+
+  - name: cbn-test-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: cbn-test-db
 
 resources:
   - name: cbn-test-auth

@@ -8,14 +8,13 @@
   "dependencies": {
     "@sap/cds": "^7",
     "express": "^4",
+    "@sap/cds-hana": "^2",
     "@sap/xssec": "^3",
-    "passport": "^0",
-    "@sap/cds-hana": "^2"
+    "passport": "^0"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^1",
-    "@sap/cds-dk": "^7",
-    "sqlite3": "^5.1.6"
+    "@sap/cds-dk": "^7"
   },
   "scripts": {
     "start": "cds-serve"
@@ -23,9 +22,9 @@
   "cds": {
     "requires": {
       "[production]": {
-        "auth": "xsuaa",
         "db": "hana"
-      }
+      },
+      "auth": "xsuaa"
     }
   }
 }
