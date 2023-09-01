@@ -22,7 +22,7 @@ modules:
         properties:
           srv-url: ${default-url}
     requires:
-      - name: cbn-test-auth
+      - name: cbn-test-uaa
       - name: cbn-test-db
 
   - name: cbn-test
@@ -39,7 +39,7 @@ modules:
           name: srv-api # must be used in xs-app.json as well
           url: ~{srv-url}
           forwardAuthToken: true
-      - name: cbn-test-auth
+      - name: cbn-test-uaa
 
   - name: cbn-test-db-deployer
     type: hdb
@@ -49,8 +49,47 @@ modules:
     requires:
       - name: cbn-test-db
 
+  - name: cbn-test-destinations
+    type: com.sap.application.content
+    requires:
+      - name: cbn-test-uaa
+        parameters:
+          service-key:
+            name: cbn-test-uaa-key
+      - name: cbn-test-html5-repo-host
+        parameters:
+          service-key:
+            name: cbn-test-html5-repo-host-key
+      - name: srv-api
+      - name: cbn-test-destination
+        parameters:
+          content-target: true
+    parameters:
+      content:
+        instance:
+          destinations:
+            - Authentication: OAuth2UserTokenExchange
+              Name: cbn-test-app-srv
+              TokenServiceInstanceName: cbn-test-uaa
+              TokenServiceKeyName: cbn-test-uaa-key
+              URL: '~{srv-api/srv-url}'
+              sap.cloud.service: cbn-test.service
+            - Name: cbn-test-html5-repo-host
+              ServiceInstanceName: cbn-test-html5-repo-host
+              ServiceKeyName: cbn-test-html5-repo-host-key
+              sap.cloud.service: cbn-test.service
+            - Authentication: OAuth2UserTokenExchange
+              Name: cbn-test-uaa
+              ServiceInstanceName: cbn-test-uaa
+              ServiceKeyName: cbn-test-uaa-key
+              sap.cloud.service: cbn-test.service
+          existing_destinations_policy: update
+    build-parameters:
+      no-source: true
+
 resources:
-  - name: cbn-test-auth
+
+  - name: cbn-test-uaa
     type: org.cloudfoundry.managed-service
     parameters:
       service: xsuaa
@@ -59,8 +98,23 @@ resources:
       config:
         xsappname: cbn-test-${org}-${space}
         tenant-mode: dedicated
+
   - name: cbn-test-db
     type: com.sap.xs.hdi-container
     parameters:
       service: hana
       service-plan: hdi-shared
+
+  - name: cbn-test-destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+      config:
+        HTML5Runtime_enabled: true
+
+  - name: cbn-test-html5-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
